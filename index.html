@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Little Learners">
+<meta name="theme-color" content="#5ec8ff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Little Learners</title>
+<style>
+:root{--ink:#2b4a8b;--card:#fffdf3;--gold:#ffc83d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{margin:0;height:100%;overflow:hidden;font-family:"Chalkboard SE","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:#bfe9ff}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+#app{position:fixed;inset:0}
+section{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px);overflow:hidden}
+section.on{display:flex}
+.sky{background:radial-gradient(circle at 88% 8%,#fff6a8 0 5%,#ffe36b 6% 8%,transparent 9%),linear-gradient(#7fd0ff,#cdf1ff 58%,#9be67f 58%,#7ed36a)}
+.sky::before,.sky::after{content:"";position:absolute;bottom:38%;width:70%;height:22%;border-radius:50% 50% 0 0;background:#8bdc72;z-index:0}
+.sky::before{left:-15%}.sky::after{right:-18%;background:#76cf62}
+section>*{position:relative;z-index:1}
+/* custom ABC background: drop your picture at assets/abc-bg.jpg */
+#abc{background:url(assets/abc-bg.jpg) center/cover no-repeat,radial-gradient(circle at 88% 8%,#fff6a8 0 5%,#ffe36b 6% 8%,transparent 9%),linear-gradient(#7fd0ff,#cdf1ff 58%,#9be67f 58%,#7ed36a)}
+.bar{width:100%;max-width:1000px;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.home{background:linear-gradient(#ffb347,#ff8a1f);color:#fff;border-radius:18px;padding:10px 18px;font-size:clamp(16px,3.4vw,24px);font-weight:800;box-shadow:0 5px 0 #c9620d}
+.home:active{transform:translateY(4px);box-shadow:0 1px 0 #c9620d}
+.title{flex:1;text-align:center;background:#fff;border-radius:22px;padding:8px 14px;font-size:clamp(18px,4vw,30px);font-weight:800;box-shadow:0 4px 0 #b9dcef}
+.board{flex:1;width:100%;max-width:1000px;min-height:0;margin-top:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* HOME */
+#menu{background:linear-gradient(#7fd0ff,#e6f8ff 60%,#ffe8f3)}
+#menu h1{margin:6px 0 2px;font-size:clamp(28px,7vw,56px);text-shadow:0 3px 0 #fff;letter-spacing:1px}
+#menu h1 span:nth-child(1){color:#ff5a5f}#menu h1 span:nth-child(2){color:#ff9f1c}#menu h1 span:nth-child(3){color:#f6c800}
+#menu h1 span:nth-child(4){color:#3cc35a}#menu h1 span:nth-child(5){color:#2f9bff}#menu h1 span:nth-child(6){color:#9b5de5}
+#menu p{margin:0 0 10px;font-size:clamp(14px,3vw,20px)}
+.grid{overflow:auto;flex:1;min-height:0;width:100%;max-width:1000px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(8px,1.6vmin,14px);padding:6px}
+.tile{border-radius:28px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;font-weight:800;font-size:clamp(18px,3.6vw,28px);box-shadow:0 8px 0 rgba(0,0,0,.18);min-height:0;text-shadow:0 2px 0 rgba(0,0,0,.2)}
+.tile:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.tile i{font-style:normal;font-size:clamp(36px,9vmin,84px);line-height:1;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+/* ABC */
+.abc-card{width:100%;background:var(--card);border:6px solid var(--gold);border-radius:30px;padding:12px;display:grid;grid-template-columns:1fr 1fr;align-items:center;justify-items:center;gap:6px;box-shadow:0 8px 0 #e0a516;flex:1;min-height:0;overflow:hidden;grid-template-rows:minmax(0,1fr) auto}
+.letter{position:relative;font-size:min(24vh,38vw);font-weight:900;line-height:1;color:#ff3b30;text-shadow:0 6px 0 #b3170f,0 10px 12px rgba(0,0,0,.25);-webkit-text-stroke:3px #e02a20}
+.letter .eye{position:absolute;top:34%;width:.17em;height:.2em;border-radius:50%;background:#fff;box-shadow:0 0 0 .012em #333 inset}
+.letter .eye::after{content:"";position:absolute;left:30%;top:35%;width:45%;height:50%;border-radius:50%;background:#222}
+.letter .e1{left:30%}.letter .e2{left:52%}
+.pic{text-align:center;font-size:min(19vh,32vw);line-height:1;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 8px 6px rgba(0,0,0,.2))}
+.word{grid-column:1/3;font-size:clamp(20px,6vh,56px);font-weight:900}
+.word b{color:#e8271b}
+.nav{display:flex;gap:16px;align-items:center;margin:4px 0}
+.nav button{width:52px;height:52px;border-radius:50%;background:#2f9bff;color:#fff;font-size:26px;font-weight:900;box-shadow:0 4px 0 #1a6cc0}
+.nav span{background:#d6efff;padding:8px 18px;border-radius:20px;font-weight:800}
+.keys{display:grid;grid-template-columns:repeat(13,1fr);gap:clamp(3px,.8vw,8px);width:100%;padding:10px;background:linear-gradient(#e9c28a,#d29f5e);border-radius:22px;box-shadow:0 6px 0 #9a6b33}
+.key{height:clamp(34px,7.5vh,60px);border-radius:clamp(8px,1.6vw,14px);color:#fff;font-weight:900;font-size:clamp(14px,min(3.4vh,4.4vw),30px);padding:0;box-shadow:0 4px 0 rgba(0,0,0,.25);text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.key:active,.key.sel{transform:translateY(3px) scale(1.06);box-shadow:0 1px 0 rgba(0,0,0,.25);outline:3px solid #fff}
+@media (max-width:640px){.keys{grid-template-columns:repeat(9,1fr)}}
+@media (max-height:520px){.nav{display:none}.title{font-size:16px;padding:4px 10px}.home{padding:6px 12px;font-size:16px}.say{font-size:16px;padding:4px 12px;margin-bottom:4px}.btn{padding:6px 16px;margin-top:4px}.board{margin-top:6px}.keys{padding:6px}}
+/* FRUIT */
+.fgrid{width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(5px,1.5vmin,16px)}
+@media (orientation:portrait){.fgrid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}}
+.fruit{container-type:size;background:#fff;border-radius:22px;min-width:0;min-height:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(0,0,0,.15);line-height:1}
+.fruit .em{font-size:9vmin;font-size:min(52cqh,62cqw);line-height:1}
+.fruit small{font-size:2.4vmin;font-size:min(14cqh,14cqw);font-weight:800;margin-top:2%;color:var(--ink)}
+.fruit.hit{animation:pop .55s}
+.fruit.no{animation:wig .4s}
+.say{background:#fff;border-radius:22px;padding:10px 18px;font-size:clamp(18px,4.2vw,30px);font-weight:900;margin-bottom:10px;box-shadow:0 4px 0 #b9dcef;min-height:2.2em;display:flex;align-items:center}
+.btn{background:linear-gradient(#7ee05a,#3cc35a);color:#fff;border-radius:20px;padding:10px 22px;font-weight:900;font-size:clamp(16px,3.4vw,24px);box-shadow:0 5px 0 #26913d;margin-top:10px}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #26913d}
+/* STARS */
+#stars{background:linear-gradient(#150f4a,#3b2a8f 60%,#6a3fb5)}
+#stars .title{background:#ffffffee}
+.sgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(4px,1.5vmin,16px);width:100%;max-width:900px;flex:1;min-height:0}
+.star{container-type:size;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;padding:0;background:none;position:relative;opacity:.4;transition:.2s;line-height:1}
+.star span{font-size:10vmin;font-size:min(80cqh,80cqw);line-height:1}
+.star.lit{opacity:1;filter:drop-shadow(0 0 16px #ffe56b);animation:pop .5s}
+.star.next{opacity:.8}
+.star em{position:absolute;left:0;right:0;top:50%;text-align:center;font-style:normal;font-weight:900;color:#7a4b00;font-size:10vmin;font-size:min(28cqh,28cqw);opacity:0;transform:translateY(-35%);pointer-events:none}
+.star.lit em{opacity:1}
+.star.next::after{content:"👆";position:absolute;left:0;right:0;bottom:-2%;text-align:center;font-size:5vmin;font-size:min(20cqh,20cqw);animation:pt .9s ease-in-out infinite;pointer-events:none}
+@keyframes pt{50%{transform:translateY(-12px)}}
+#sSay{background:#ffffffee}
+.big{font-size:clamp(44px,13vh,130px);font-weight:900;color:#ffe56b;text-shadow:0 6px 0 #c89a00;line-height:1;margin-bottom:6px}
+/* BODY */
+.bodywrap{position:relative;width:100%;flex:1;min-height:0}
+#bodysvg{position:absolute;inset:0;width:100%;height:100%}
+#bodysvg [data-part]{cursor:pointer;transition:filter .15s}
+#bodysvg .flash{animation:flash .7s}
+/* COLORS */
+.cgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:clamp(4px,1.4vmin,14px);width:100%;max-width:1000px;flex:1;min-height:0}
+@media (orientation:landscape){.cgrid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}}
+.ball{--s:min(100cqw,calc(100cqh - 30px));width:var(--s);height:var(--s);flex:none;padding:0;border-radius:50%;position:relative;box-shadow:inset -8px -10px 0 rgba(0,0,0,.12),0 6px 0 rgba(0,0,0,.18)}
+.ball .face{position:absolute;inset:0}
+.ball .face::before,.ball .face::after{content:"";position:absolute;top:38%;width:11%;height:11%;border-radius:50%;background:#111}
+.ball .face::before{left:30%}.ball .face::after{right:30%}
+.ball .mouth{position:absolute;left:44%;top:56%;width:12%;height:8%;background:#e33a24;border-radius:0 0 100px 100px}
+.ball .cheek{position:absolute;top:54%;width:14%;height:9%;border-radius:50%;background:rgba(255,120,140,.55)}
+.ball .c1{left:16%}.ball .c2{right:16%}
+.cwrap label{font-weight:800;font-size:clamp(13px,2.6vmin,22px);height:24px;line-height:24px;color:var(--ink);pointer-events:none}
+.ball.hit{animation:pop .55s}
+.cwrap{container-type:size;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+#bodysvg [data-part]{cursor:pointer}
+#bodysvg .flash{animation:bpop .6s;transform-box:fill-box;transform-origin:center}
+@keyframes bpop{35%{transform:scale(1.18)}70%{transform:scale(.95)}}
+.pic svg{height:1.4em;max-width:100%;width:auto;display:block;margin:0 auto}
+.bgrid{width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:clamp(6px,1.6vmin,16px)}
+@media (orientation:portrait){.bgrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}}
+.bird{container-type:size;background:#fff;border-radius:22px;min-width:0;min-height:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;box-shadow:0 6px 0 rgba(0,0,0,.15)}
+.bird .art{width:min(90cqw,calc(72cqh * .77));display:block;line-height:1}
+.bird .art svg{width:100%;height:auto;display:block}
+.bird .art.emo{width:auto;font-size:min(60cqh,60cqw)}
+.bird small{font-size:2.4vmin;font-size:min(11cqh,13cqw);font-weight:800;color:var(--ink);line-height:1}
+.bird.hit{animation:pop .55s}.bird.no{animation:wig .4s}
+.hide{display:none!important}
+.tabs{display:flex;gap:10px;margin-bottom:8px;width:100%;justify-content:center}
+.tabs button{background:#fff;border-radius:18px;padding:8px 16px;font-weight:900;font-size:clamp(14px,3vmin,22px);box-shadow:0 4px 0 #b9dcef;color:var(--ink)}
+.tabs button.on{background:linear-gradient(#ffb347,#ff8a1f);color:#fff;box-shadow:0 4px 0 #c9620d}
+.row{display:flex;gap:12px}
+.shgrid{width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:clamp(6px,1.6vmin,16px)}
+@media (orientation:portrait){.shgrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}}
+.shape{container-type:size;background:#fff;border-radius:22px;min-width:0;min-height:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3%;box-shadow:0 6px 0 rgba(0,0,0,.15)}
+.shape .art{width:min(82cqw,64cqh);height:min(82cqw,64cqh);display:block}
+.shape .art svg{width:100%;height:100%;display:block}
+.shape small{font-size:2.6vmin;font-size:min(12cqh,15cqw);font-weight:900;color:var(--ink);line-height:1}
+.shape.hit{animation:pop .55s}.shape.no{animation:wig .4s}
+.mgrid{width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(6px,1.6vmin,16px)}
+.mcell{position:relative;min-width:0;min-height:0}
+.mcell.mt{background:rgba(255,255,255,.6);border-radius:22px}
+.mcell.drag{z-index:50}
+.tgt,.piece{position:absolute;inset:6%}
+.piece{touch-action:none;cursor:grab}
+.piece.done{pointer-events:none}
+.tgt svg,.piece svg{width:100%;height:100%;display:block;pointer-events:none}
+.piece svg{filter:drop-shadow(0 6px 4px rgba(0,0,0,.25))}
+.stage{container-type:size;--u:min(62cqh,38cqw);--k:min(.29cqh,.3cqw);width:100%;flex:1;min-height:0;background:rgba(255,255,255,.55);border-radius:26px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 4% 7%;position:relative;overflow:hidden}
+.stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:7%;background:#7ed36a;pointer-events:none}
+.it{background:none;padding:0;line-height:1;display:block;position:relative;z-index:1}
+.it svg{display:block}
+.it.hit{animation:pop .55s}.it.no{animation:wig .4s}
+@media (max-height:520px){.tabs button{padding:4px 10px;font-size:14px}.tabs{margin-bottom:4px}}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);background:#2e9e4f;color:#fff;font-weight:900;padding:10px 20px;border-radius:20px;z-index:200;box-shadow:0 5px 0 #1f7a38;animation:tin .4s,tout .5s 4s forwards;white-space:nowrap}
+@keyframes tin{from{transform:translate(-50%,-80px)}}
+@keyframes tout{to{opacity:0}}
+.bodyboard{width:100%;flex:1;min-height:0;display:grid;gap:clamp(6px,1.4vmin,14px);grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,2.2fr) repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}
+.bodyboard .bodywrap{grid-column:3;grid-row:1/4}
+.bc{grid-column:var(--lc);grid-row:var(--lr);container-type:size;background:#fff;border-radius:20px;min-width:0;min-height:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;box-shadow:0 5px 0 rgba(0,0,0,.15)}
+.bc .em{font-size:7vmin;font-size:min(52cqh,52cqw);line-height:1}
+.bc small{font-size:2vmin;font-size:min(17cqh,17cqw);font-weight:900;color:var(--ink);line-height:1}
+.bc.hit{animation:pop .55s}
+@media (orientation:portrait){.bodyboard{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,2.2fr) repeat(3,minmax(0,.8fr))}.bodyboard .bodywrap{grid-column:1/-1;grid-row:1}.bc{grid-column:var(--pc);grid-row:var(--pr)}}
+.ring{fill:rgba(255,225,74,.28);stroke:#ffe14a;stroke-width:5;pointer-events:none;transform-box:fill-box;transform-origin:center;animation:ringp 1.4s ease-out forwards}
+@keyframes ringp{0%{transform:scale(.7);opacity:1}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1.25);opacity:0}}
+.strip{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:clamp(3px,.8vmin,8px);width:100%;max-width:900px;margin-bottom:6px}
+.strip button{height:clamp(34px,7vh,56px);border-radius:14px;color:#fff;font-weight:900;font-size:clamp(16px,min(3.6vh,5vw),30px);box-shadow:0 4px 0 rgba(0,0,0,.25);text-shadow:0 2px 0 rgba(0,0,0,.25);padding:0}
+.strip button.on{outline:4px solid #fff;transform:translateY(3px)}
+.choices{display:flex;gap:14px;margin-bottom:6px;justify-content:center}
+.choices button{width:clamp(70px,16vh,120px);height:clamp(54px,11vh,90px);border-radius:22px;color:#fff;font-weight:900;font-size:clamp(30px,7vh,56px);box-shadow:0 5px 0 rgba(0,0,0,.25);text-shadow:0 2px 0 rgba(0,0,0,.25);padding:0}
+.choices button.no{animation:wig .4s}
+.cstage{container-type:size;width:100%;flex:1;min-height:0;display:flex;gap:2%;background:rgba(255,255,255,.6);border-radius:26px;padding:2%;overflow:hidden}
+.cnum{flex:0 0 28%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#ff5a5f;font-size:60px;font-size:min(62cqh,24cqw);line-height:1;text-shadow:0 6px 0 #b3170f33}
+.cnum.done{color:#2fa84f;animation:pop .6s}
+.zoo{flex:1;min-width:0;min-height:0;display:grid;gap:2%}
+.an{container-type:size;position:relative;background:none;padding:0;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+.an span{font-size:12vmin;font-size:min(78cqh,78cqw);line-height:1}
+.an:not(.on) span{animation:bob 2.4s ease-in-out infinite}
+.an:nth-child(even) span{animation-delay:.6s}
+.an.on span{filter:drop-shadow(0 0 10px #ffd21f)}
+.an em{position:absolute;right:4%;bottom:2%;width:min(36cqh,36cqw);height:min(36cqh,36cqw);border-radius:50%;background:#ff5a5f;color:#fff;font-style:normal;font-weight:900;font-size:min(24cqh,24cqw);display:none;align-items:center;justify-content:center;box-shadow:0 3px 0 #b3170f}
+.an.on em{display:flex}
+.an.hit{animation:pop .5s}
+@media (orientation:portrait){.cstage{flex-direction:column}.cnum{flex:0 0 22%;font-size:60px;font-size:min(20cqh,36cqw)}}
+@media (max-height:520px){.strip button{height:28px}.choices button{height:44px;width:64px;font-size:24px}}
+.chip{background:#fff;border-radius:16px;padding:6px 14px;font-weight:900;font-size:clamp(12px,2.4vmin,18px);box-shadow:0 3px 0 #b9dcef;color:var(--ink);margin:0 0 8px}
+.chip.ok{background:#d9f7e1;color:#1f7a38;box-shadow:0 3px 0 #a9dcb8}
+.chip.warn{background:#fff0d6;color:#a65a00;box-shadow:0 3px 0 #f0cf9a}
+.modal{position:fixed;inset:0;background:rgba(20,30,80,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
+.mcard{background:#fff;border-radius:28px;max-width:560px;width:100%;max-height:94%;overflow:auto;padding:18px 22px;font-size:clamp(15px,2.6vmin,22px);box-shadow:0 8px 0 rgba(0,0,0,.2);text-align:left}
+.mcard h2{margin:0 0 6px}.mcard ol{padding-left:1.3em;margin:8px 0;line-height:1.5}
+.mcard .tip{background:#fff6d6;border-radius:14px;padding:8px 12px;margin-top:8px;font-size:.92em}
+.mcard .btn{display:block;margin:12px auto 0}
+@media (max-height:520px){.chip{padding:2px 10px;margin-bottom:2px}#menu h1{margin:2px 0}#menu p{display:none}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}.chips .chip{margin:0}
+.lockbtn{position:relative;overflow:hidden;min-width:70px;text-align:center;padding:10px 12px;background:linear-gradient(#8aa0ff,#5a6ee0);box-shadow:0 5px 0 #3b49a8}
+.lockbtn:active{box-shadow:0 1px 0 #3b49a8}
+.lockbtn.hold::after{content:"";position:absolute;left:0;bottom:0;height:7px;background:#fff;animation:fillbar var(--hold,1.5s) linear forwards}
+@keyframes fillbar{from{width:0}to{width:100%}}
+.locked .home:not(.lockbtn){visibility:hidden}
+.locked .lockbtn{opacity:.6}
+.locked #offChip,.locked #lockTips{display:none}
+html,body{overscroll-behavior:none;-webkit-touch-callout:none}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px auto;max-width:300px}
+.keypad button{height:clamp(46px,8vh,64px);border-radius:16px;background:#2f9bff;color:#fff;font-weight:900;font-size:26px;box-shadow:0 4px 0 #1a6cc0;padding:0}
+.keypad.no{animation:wig .4s}
+.fruit .em.drive{animation:drive .8s}
+@keyframes drive{0%{transform:translateX(-14%)}40%{transform:translateX(14%)}70%{transform:translateX(-6%)}100%{transform:none}}
+/* effects */
+@keyframes bob{50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.25) rotate(-6deg)}70%{transform:scale(.95) rotate(4deg)}100%{transform:scale(1)}}
+@keyframes wig{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+@keyframes flash{0%,100%{filter:none}30%{filter:brightness(1.3) drop-shadow(0 0 12px #fff200)}}
+.conf{position:fixed;pointer-events:none;z-index:99;font-size:28px;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<section id="menu" class="on">
+  <h1><span>L</span><span>i</span><span>t</span><span>t</span><span>l</span><span>e</span> Learners</h1>
+  <p>Tap a game to play!</p>
+  <div class="chips"><button class="chip" id="offChip">⏳ Getting ready for offline…</button><button class="chip" id="lockTips">🔒 Parent lock tips</button></div>
+  <div class="grid">
+    <button class="tile" style="background:linear-gradient(#ff7a7a,#ff3b30)" data-go="abc"><i>🔤</i>ABC Fun</button>
+    <button class="tile" style="background:linear-gradient(#ffb347,#ff7a00)" data-go="fruit"><i>🍎</i>Fruit Fun</button>
+    <button class="tile" style="background:linear-gradient(#6a5acd,#3b2a8f)" data-go="stars"><i>⭐</i>Counting Stars</button>
+    <button class="tile" style="background:linear-gradient(#ff8fc7,#e0449a)" data-go="body"><i>🧒</i>My Body</button>
+    <button class="tile" style="background:linear-gradient(#5ed0ff,#2f7bff)" data-go="colors"><i>🌈</i>Colors</button>
+    <button class="tile" style="background:linear-gradient(#7ee05a,#2fa84f)" data-go="transport"><i>🚗</i>Transport</button>
+    <button class="tile" style="background:linear-gradient(#ffd84a,#f5a800)" data-go="shapes"><i>🔷</i>Shapes</button>
+    <button class="tile" style="background:linear-gradient(#9b8cff,#6a4fe0)" data-go="size"><i>🐘</i>Big &amp; Small</button>
+    <button class="tile" style="background:linear-gradient(#4fd1c5,#1fa294)" data-go="count"><i>🐥</i>Count Animals</button>
+  </div>
+</section>
+
+<!-- ABC -->
+<section id="abc">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Let's learn the alphabet!</div><button class="home" id="abcSay" style="background:linear-gradient(#ff6b8b,#e63462);box-shadow:0 5px 0 #a8183f">🔊</button><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="abc-card">
+      <div class="letter" id="abcLetter"><span id="abcCh">A</span><span class="eye e1"></span><span class="eye e2"></span></div>
+      <div class="pic" id="abcPic">🍎</div>
+      <div class="word" id="abcWord"><b>A</b> is for Apple!</div>
+    </div>
+    <div class="nav"><button id="abcPrev">◀</button><span id="abcCount">1 / 26</span><button id="abcNext">▶</button></div>
+    <div class="keys" id="abcKeys"></div>
+  </div>
+</section>
+
+<!-- FRUIT -->
+<section id="fruit" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Fruit Fun 🍓</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="say" id="fSay">Tap a fruit!</div>
+    <div class="fgrid" id="fGrid"></div>
+    <button class="btn" id="fQuiz">🎯 Find the fruit!</button>
+  </div>
+</section>
+
+<!-- STARS -->
+<section id="stars">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Counting Stars ⭐</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="say" id="sSay">👆 Tap a star to count!</div>
+    <div class="big" id="sNum">0</div>
+    <div class="sgrid" id="sGrid"></div>
+    <button class="btn" id="sReset" style="background:linear-gradient(#ffb347,#ff8a1f);box-shadow:0 5px 0 #c9620d">🔄 Again</button>
+  </div>
+</section>
+
+<!-- BODY -->
+<section id="body" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">My Body 🧒</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="say" id="bSay">👆 Tap a picture or my body!</div>
+    <div class="bodyboard" id="bodyBoard"><div class="bodywrap">
+<svg id="bodysvg" viewBox="0 0 300 470" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="150" cy="460" rx="95" ry="9" fill="rgba(0,0,0,.15)"/>
+  <!-- pigtails + hair back -->
+  <g data-part="hair"><ellipse cx="46" cy="152" rx="30" ry="54" fill="#4a2c2a"/><ellipse cx="254" cy="152" rx="30" ry="54" fill="#4a2c2a"/><circle cx="150" cy="116" r="84" fill="#4a2c2a"/><circle cx="62" cy="104" r="10" fill="#ff4d6d"/><circle cx="238" cy="104" r="10" fill="#ff4d6d"/></g>
+  <!-- legs, socks, shoes -->
+  <g data-part="leg"><rect x="112" y="335" width="34" height="98" rx="17" fill="#ffd2a8"/><rect x="154" y="335" width="34" height="98" rx="17" fill="#ffd2a8"/><rect x="100" y="335" width="58" height="80" fill="#000" fill-opacity="0"/><rect x="142" y="335" width="58" height="80" fill="#000" fill-opacity="0"/></g>
+  <g data-part="knee"><circle cx="129" cy="378" r="14" fill="#ffbf8c"/><circle cx="171" cy="378" r="14" fill="#ffbf8c"/><circle cx="129" cy="378" r="26" fill="#000" fill-opacity="0"/><circle cx="171" cy="378" r="26" fill="#000" fill-opacity="0"/></g>
+  <g data-part="foot"><rect x="112" y="408" width="34" height="24" rx="6" fill="#fff"/><rect x="154" y="408" width="34" height="24" rx="6" fill="#fff"/><ellipse cx="120" cy="440" rx="32" ry="16" fill="#ff4d6d"/><ellipse cx="180" cy="440" rx="32" ry="16" fill="#ff4d6d"/><ellipse cx="112" cy="436" rx="10" ry="5" fill="#ff8fa3"/><ellipse cx="188" cy="436" rx="10" ry="5" fill="#ff8fa3"/><ellipse cx="120" cy="436" rx="36" ry="26" fill="#000" fill-opacity="0"/><ellipse cx="180" cy="436" rx="36" ry="26" fill="#000" fill-opacity="0"/></g>
+  <!-- arms + hands -->
+  <g data-part="arm"><path d="M116 228L58 266" stroke="#ffd2a8" stroke-width="30" stroke-linecap="round"/><path d="M184 228L242 266" stroke="#ffd2a8" stroke-width="30" stroke-linecap="round"/><circle cx="86" cy="248" r="26" fill="#000" fill-opacity="0"/><circle cx="214" cy="248" r="26" fill="#000" fill-opacity="0"/></g>
+  <g data-part="hand"><circle cx="44" cy="276" r="21" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><circle cx="28" cy="262" r="8" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><circle cx="256" cy="276" r="21" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><circle cx="272" cy="262" r="8" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><circle cx="44" cy="276" r="32" fill="#000" fill-opacity="0"/><circle cx="256" cy="276" r="32" fill="#000" fill-opacity="0"/></g>
+  <rect x="134" y="176" width="32" height="44" rx="10" fill="#ffc9a0"/>
+  <!-- dress / tummy -->
+  <g data-part="tummy"><circle cx="112" cy="222" r="17" fill="#ff5fa8"/><circle cx="188" cy="222" r="17" fill="#ff5fa8"/><path d="M104 206Q150 192 196 206L230 352Q150 374 70 352Z" fill="#ff5fa8"/><path d="M110 210Q150 232 190 210" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><g fill="#fff" opacity=".85"><circle cx="118" cy="262" r="7"/><circle cx="168" cy="252" r="7"/><circle cx="196" cy="296" r="7"/><circle cx="134" cy="312" r="7"/><circle cx="168" cy="334" r="7"/><circle cx="98" cy="326" r="7"/></g></g>
+  <!-- head, ears -->
+  <g data-part="head"><circle cx="150" cy="118" r="70" fill="#ffd2a8"/></g>
+  <g data-part="ear"><ellipse cx="80" cy="126" rx="12" ry="18" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><ellipse cx="220" cy="126" rx="12" ry="18" fill="#ffd2a8" stroke="#f0ac7c" stroke-width="2"/><circle cx="80" cy="126" r="24" fill="#000" fill-opacity="0"/><circle cx="220" cy="126" r="24" fill="#000" fill-opacity="0"/></g>
+  <!-- fringe + bow -->
+  <g data-part="hair"><path d="M80 112Q82 46 150 42Q218 46 220 112Q194 74 150 82Q106 74 80 112Z" fill="#5b3532"/><path d="M200 50l-28-16v32zM200 50l28-16v32z" fill="#ff4d6d"/><circle cx="200" cy="50" r="7" fill="#ff2d55"/></g>
+  <path d="M104 100q17-12 34 0M162 100q17-12 34 0" stroke="#4a2c2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="96" cy="154" r="13" fill="#ff8fa3" opacity=".55"/><circle cx="204" cy="154" r="13" fill="#ff8fa3" opacity=".55"/>
+  <g data-part="eye"><ellipse cx="121" cy="126" rx="17" ry="19" fill="#fff"/><ellipse cx="179" cy="126" rx="17" ry="19" fill="#fff"/><circle cx="123" cy="128" r="11" fill="#3b82e0"/><circle cx="177" cy="128" r="11" fill="#3b82e0"/><circle cx="123" cy="128" r="6" fill="#111"/><circle cx="177" cy="128" r="6" fill="#111"/><circle cx="127" cy="123" r="3.5" fill="#fff"/><circle cx="181" cy="123" r="3.5" fill="#fff"/><path d="M103 116q-6-3-9-9M197 116q6-3 9-9" stroke="#222" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="121" cy="126" r="28" fill="#000" fill-opacity="0"/><circle cx="179" cy="126" r="28" fill="#000" fill-opacity="0"/></g>
+  <g data-part="nose"><ellipse cx="150" cy="150" rx="8" ry="6" fill="#f2a679"/><circle cx="150" cy="150" r="20" fill="#000" fill-opacity="0"/></g>
+  <g data-part="mouth"><path d="M118 168Q150 206 182 168Q150 178 118 168Z" fill="#9b1b30"/><path d="M127 171Q150 180 173 171L171 177Q150 185 129 177Z" fill="#fff"/><ellipse cx="150" cy="193" rx="12" ry="5" fill="#ff7a8a"/><ellipse cx="150" cy="182" rx="38" ry="24" fill="#000" fill-opacity="0"/></g>
+</svg>
+    </div></div>
+    <button class="btn" id="bodyQuiz" style="background:linear-gradient(#ff8fc7,#e0449a);box-shadow:0 5px 0 #a82a72">🎯 Find it!</button>
+  </div>
+</section>
+
+<!-- TRANSPORT -->
+<section id="transport" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Transport 🚗</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="say" id="trSay">👆 Tap a vehicle!</div>
+    <div class="fgrid" id="trGrid"></div>
+    <button class="btn" id="trQuiz">🎯 Find the vehicle!</button>
+  </div>
+</section>
+
+<!-- SHAPES -->
+<section id="shapes" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Shapes 🔷</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="tabs" id="shTabs"><button data-m="learn" class="on">👆 Learn</button><button data-m="find">🎯 Find it</button><button data-m="match">🧩 Match</button></div>
+    <div class="say" id="shSay">👆 Tap a shape!</div>
+    <div class="shgrid" id="shGrid"></div>
+    <div class="mgrid hide" id="shMatch"></div>
+  </div>
+</section>
+
+<!-- BIG & SMALL -->
+<section id="size" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Big &amp; Small 🐘</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="tabs" id="szTabs"><button data-c="bs" class="on">🐘 Big / Small</button><button data-c="ts">🦒 Tall / Short</button></div>
+    <div class="say" id="szSay">👆 Tap them!</div>
+    <div class="stage" id="szStage"></div>
+    <div class="row"><button class="btn" id="szNext" style="background:linear-gradient(#5ed0ff,#2f7bff);box-shadow:0 5px 0 #1a56b8">🔄 Next</button><button class="btn" id="szQuiz">🎯 Find it!</button></div>
+  </div>
+</section>
+
+<!-- COUNT ANIMALS -->
+<section id="count" class="sky">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Count Animals 🐥</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board">
+    <div class="tabs" id="cnTabs"><button data-m="learn" class="on">👆 Count</button><button data-m="quiz">🎯 How many?</button></div>
+    <div class="say" id="cnSay">👆 Tap the lion!</div>
+    <div class="strip" id="cnStrip"></div>
+    <div class="choices hide" id="cnChoices"></div>
+    <div class="cstage"><div class="cnum" id="cnNum">1</div><div class="zoo" id="cnZoo"></div></div>
+    <div class="row"><button class="btn" id="cnAgain" style="background:linear-gradient(#ffb347,#ff8a1f);box-shadow:0 5px 0 #c9620d">🔁 Again</button><button class="btn" id="cnNext">▶ Next</button></div>
+  </div>
+</section>
+
+<!-- COLORS -->
+<section id="colors" style="background:linear-gradient(#fff,#e3f6ff 70%,#bfe9ff)">
+  <div class="bar"><button class="home" data-go="menu">🏠 Home</button><div class="title">Colors 🌈</div><button class="home lockbtn" aria-label="Hold to lock">🔒</button></div>
+  <div class="board"><div class="cgrid" id="cGrid"></div></div>
+</section>
+
+</div>
+
+<div class="modal hide" id="help"><div class="mcard">
+  <h2>📲 Play without internet</h2>
+  <ol>
+    <li>Open this page in <b>Safari</b>. If you see an <b>✕</b> at the top-left, you are inside another app: tap <b>⋯</b> then <b>Open in Safari</b>.</li>
+    <li>Tap the <b>Share</b> button (a square with an arrow ⬆️) at the top of Safari.</li>
+    <li>Choose <b>Add to Home Screen</b>, then tap <b>Add</b>.</li>
+    <li>Open <b>Little Learners</b> from the Home Screen <u>once with internet</u>. You will see a green "Saved!" message.</li>
+  </ol>
+  <div class="tip">After that it works with Wi-Fi off, in airplane mode, anywhere. 🎉</div>
+  <button class="btn" id="helpClose">👍 OK</button>
+</div></div>
+
+<div class="modal hide" id="gate"><div class="mcard" style="text-align:center">
+  <h2>👨‍👩‍👧 Grown-ups only</h2>
+  <div style="font-size:1.4em;font-weight:900" id="gateQ"></div>
+  <div id="gateIn" style="font-size:2em;font-weight:900;min-height:1.3em;letter-spacing:.2em"></div>
+  <div class="keypad" id="keypad"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="del">⌫</button><button data-k="0">0</button><button data-k="ok" style="background:#3cc35a;box-shadow:0 4px 0 #26913d">✔</button></div>
+  <button class="btn" id="gateCancel" style="background:linear-gradient(#8aa0ff,#5a6ee0);box-shadow:0 5px 0 #3b49a8">Cancel</button>
+</div></div>
+<div class="modal hide" id="tips"><div class="mcard">
+  <h2>🔒 Child lock</h2>
+  <ol>
+    <li>Open a game and <b>hold the 🔒 button for 1.5 seconds</b>. The child is now stuck in that game: no Home button, Back and refresh are blocked, the screen stays on and it goes full screen.</li>
+    <li>To unlock, <b>hold 🔓 for 2 seconds</b> and answer the grown-up sum.</li>
+  </ol>
+  <div class="tip"><b>Important:</b> a website cannot block the device's own buttons (Home button, app switcher, swipes, closing tabs). For a full lock, use the built-in one:<br>
+  • <b>iPad / iPhone:</b> Settings → Accessibility → <b>Guided Access</b> → On (set a passcode). Open the app, then triple-click the Home / top button → <b>Start</b>.<br>
+  • <b>Android:</b> Settings → Security → <b>App pinning</b> → On. Open the app, Recents → tap its icon → <b>Pin</b>.<br>
+  • <b>Chrome on a laptop:</b> press <b>F11</b> for full screen; for a true kiosk start Chrome with <code>--kiosk</code>.<br>
+  Tip: <b>Add to Home Screen</b> first, so there is no browser bar to tap.</div>
+  <button class="btn" id="tipsClose">👍 OK</button>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+/* ---------- sound ---------- */
+let AC; function tone(f=660,d=.12,t='sine',v=.15){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+const pop=()=>{tone(520,.08);setTimeout(()=>tone(780,.1),70)}, oops=()=>tone(180,.25,'triangle');
+const cheer=()=>[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.18),i*110));
+function speak(t){try{const s=window.speechSynthesis;s.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.8;u.pitch=1.3;u.lang='en-US';s.speak(u)}catch(e){}}
+function burst(el,set=['⭐','✨','🎉','💖','🌟']){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  for(let i=0;i<10;i++){const p=document.createElement('div');p.className='conf';p.textContent=set[i%set.length];p.style.left=cx+'px';p.style.top=cy+'px';
+    p.style.setProperty('--x',(Math.random()*240-120)+'px');p.style.setProperty('--y',(Math.random()*-200-20)+'px');p.style.setProperty('--r',(Math.random()*360)+'deg');
+    document.body.appendChild(p);setTimeout(()=>p.remove(),1000)}}
+function hit(el,cls='hit'){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+
+/* ---------- router ---------- */
+var lockedScreen=null;
+function go(n){if(lockedScreen&&n!==lockedScreen)return;$$('section').forEach(s=>s.classList.toggle('on',s.id===n));try{speechSynthesis.cancel()}catch(e){};if(location.hash!=='#'+n)history.replaceState(null,'','#'+n)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){pop();go(b.dataset.go)}});
+if(location.hash.length>1&&document.getElementById(location.hash.slice(1)))go(location.hash.slice(1));
+
+/* ---------- PARROTS ---------- */
+const PC={
+'african-grey':{body:'#8b919a',belly:'#a9afb7',head:'#969ca4',wing:'#6c727b',wing2:'#565c65',tail:'#e3262d',tail2:'#e3262d',patch:'#f4f4f4',beak:'#2a2a2a',fore:null,under:'#3a3a3a'},
+'amazon':{body:'#3fae3a',belly:'#76d56a',head:'#3fae3a',wing:'#2b8a33',wing2:'#e53935',tail:'#2b8a33',tail2:'#9be15d',patch:null,beak:'#e8dfc0',fore:'#ffd21f',under:'#c9bf9a'},
+'green-macaw':{body:'#4cb02f',belly:'#79d24a',head:'#4cb02f',wing:'#2f6fd6',wing2:'#ffd21f',tail:'#e53935',tail2:'#2f6fd6',patch:'#fff4ec',beak:'#2a2a2a',fore:'#e53935',under:'#3a3a3a'},
+'scarlet-macaw':{body:'#e5352b',belly:'#f0554a',head:'#e5352b',wing:'#2f6fd6',wing2:'#ffd21f',tail:'#d62b22',tail2:'#2f6fd6',patch:'#fff4ec',beak:'#f1ead6',fore:null,under:'#2a2a2a'}};
+function parrotSVG(c){
+ const fore=c.fore?`<path d="M78 40Q104 14 138 40Q108 32 78 40Z" fill="${c.fore}"/>`:'';
+ const patch=c.patch?`<ellipse cx="119" cy="68" rx="21" ry="18" fill="${c.patch}"/><path d="M106 66q10 3 20 0M108 74q10 3 20 0" stroke="#d9b9a9" stroke-width="1.4" fill="none" opacity=".7"/>`:'';
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect x="14" y="198" width="172" height="14" rx="7" fill="#9a6a3a"/><rect x="14" y="198" width="172" height="5" rx="2.5" fill="#b98350"/><path d="M78 170L58 250L96 246L114 176Z" fill="${c.tail}"/><path d="M58 250L96 246L92 230L62 234Z" fill="${c.tail2}"/><ellipse cx="100" cy="136" rx="46" ry="62" fill="${c.body}"/><ellipse cx="112" cy="148" rx="28" ry="46" fill="${c.belly}"/><path d="M60 104Q36 160 68 208Q104 186 102 120Z" fill="${c.wing}"/><path d="M62 150Q58 175 70 196Q84 186 88 160Z" fill="${c.wing2}"/><circle cx="105" cy="62" r="41" fill="${c.head}"/>${fore}${patch}<ellipse cx="119" cy="58" rx="10" ry="10" fill="#fff"/><circle cx="121" cy="58" r="6" fill="#111"/><circle cx="123" cy="55.5" r="2" fill="#fff"/><path d="M132 46Q172 46 164 90Q156 70 134 74Z" fill="${c.beak}"/><path d="M134 74Q156 72 160 88Q146 90 134 80Z" fill="${c.under}"/><g stroke="#555" stroke-width="5" stroke-linecap="round"><path d="M92 192v8M104 192v8M116 192v8"/></g></svg>`}
+const chirp=()=>[1900,2500,2100,2800].forEach((f,i)=>setTimeout(()=>tone(f,.07,'sine',.12),i*80));
+
+/* ---------- ABC ---------- */
+const ABC=[["Apple","🍎"],["Ball","⚽"],["Cat","🐱"],["Dog","🐶"],["Egg","🥚"],["Fish","🐟"],["Grapes","🍇"],["Hat","🎩"],["Ice cream","🍦"],["Juice","🧃"],["Kite","🪁"],["Lion","🦁"],["Moon","🌙"],["Nose","👃"],["Orange","🍊"],["Parrot",parrotSVG(PC['african-grey'])],["Queen","👑"],["Rainbow","🌈"],["Sun","☀️"],["Tree","🌳"],["Umbrella","☂️"],["Van","🚐"],["Watch","⌚"],["Xylophone","🎹"],["Yo-yo","🪀"],["Zebra","🦓"]];
+const KC=["#ff3b30","#ff7a00","#f6c800","#3cc35a","#17b6a6","#2f9bff","#7a5af8","#ff5fa8"];
+let ai=0;
+$('#abcKeys').innerHTML=ABC.map((_,i)=>`<button class="key" data-i="${i}" style="background:${KC[i%8]}">${String.fromCharCode(65+i)}</button>`).join('');
+function abcShow(i,talk=true){ai=(i+26)%26;const [w,p]=ABC[ai],L=String.fromCharCode(65+ai);
+  $('#abcCh').textContent=L;$('#abcPic').innerHTML=p;$('#abcWord').innerHTML=`<b>${L}</b> is for ${w}!`;$('#abcCount').textContent=`${ai+1} / 26`;
+  $$('.key').forEach(k=>k.classList.toggle('sel',+k.dataset.i===ai));hit($('#abcLetter'));pop();if(talk)speak(`${L}. ${L} is for ${w}`)}
+$('#abcKeys').addEventListener('click',e=>{const k=e.target.closest('.key');if(k)abcShow(+k.dataset.i)});
+$('#abcPrev').onclick=()=>abcShow(ai-1);$('#abcNext').onclick=()=>abcShow(ai+1);
+$('#abcSay').onclick=()=>speak(`${String.fromCharCode(65+ai)} is for ${ABC[ai][0]}`);
+$('#abcLetter').onclick=()=>abcShow(ai);$('#abcPic').onclick=()=>{hit($('#abcPic'));speak(ABC[ai][0])};
+addEventListener('keydown',e=>{if($('#abc').classList.contains('on')&&/^[a-z]$/i.test(e.key))abcShow(e.key.toUpperCase().charCodeAt(0)-65)});
+abcShow(0,false);
+
+/* ---------- FRUIT ---------- */
+const FR=[["Apple","🍎"],["Banana","🍌"],["Grapes","🍇"],["Strawberry","🍓"],["Orange","🍊"],["Watermelon","🍉"],["Pineapple","🍍"],["Cherries","🍒"],["Peach","🍑"],["Mango","🥭"],["Pear","🍐"],["Lemon","🍋"]];
+$('#fGrid').innerHTML=FR.map(([n,e],i)=>`<button class="fruit" data-i="${i}"><span class="em">${e}</span><small>${n}</small></button>`).join('');
+let quiz=null;
+function ask(){quiz=Math.floor(Math.random()*FR.length);const t=`Tap the ${FR[quiz][0]}!`;$('#fSay').textContent='🎯 '+t;speak(t)}
+$('#fGrid').addEventListener('click',e=>{const b=e.target.closest('.fruit');if(!b)return;const i=+b.dataset.i;
+  if(quiz===null){hit(b);pop();burst(b,[FR[i][1],'✨']);$('#fSay').textContent=`${FR[i][1]} ${FR[i][0]}!`;speak(FR[i][0])}
+  else if(i===quiz){hit(b);cheer();burst(b);speak('Yay! '+FR[i][0]);setTimeout(ask,1500)}
+  else{hit(b,'no');oops();speak('Try again')}});
+$('#fQuiz').onclick=()=>{if(quiz===null){$('#fQuiz').textContent='👆 Just tap & learn';ask()}else{quiz=null;$('#fQuiz').textContent='🎯 Find the fruit!';$('#fSay').textContent='Tap a fruit!'}};
+
+/* ---------- STARS ---------- */
+let sc=0;
+const NUM=["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
+$('#sGrid').innerHTML=Array.from({length:10},(_,i)=>`<button class="star" data-i="${i}"><span>⭐</span><em>${i+1}</em></button>`).join('');
+function sHint(){$$('.star').forEach((s,i)=>s.classList.toggle('next',i===sc))}
+$('#sGrid').addEventListener('click',e=>{
+  if(!e.target.closest('.star')||sc>=10)return;          // tapping ANY star lights the next one
+  const b=$$('.star')[sc];b.classList.add('lit');sc++;
+  $('#sNum').textContent=sc;tone(400+sc*60,.15);speak(NUM[sc]);burst(b,['✨','⭐']);sHint();
+  $('#sSay').textContent=sc<10?`⭐ ${sc}! Tap the next star!`:'🎉 Ten stars! Great job!';
+  if(sc===10)setTimeout(()=>{cheer();burst($('#sNum'));speak('Great job! Ten stars!')},900)});
+$('#sReset').onclick=()=>{sc=0;$('#sNum').textContent=0;$$('.star').forEach(s=>s.classList.remove('lit'));$('#sSay').textContent='👆 Tap a star to count!';sHint();pop()};
+sHint();
+
+/* ---------- BODY ---------- */
+const BP={head:"Head",hair:"Hair",eye:"Eyes",nose:"Nose",mouth:"Mouth",ear:"Ears",arm:"Arms",hand:"Hands",leg:"Legs",knee:"Knees",foot:"Feet",tummy:"Tummy"};
+const BCARD=[['eye','👁️'],['nose','👃'],['mouth','👄'],['ear','👂'],['head','🙂'],['hair','💇'],['arm','💪'],['hand','✋'],['tummy','👕'],['leg','👖'],['knee','🦵'],['foot','🦶']];
+const PAIR=['eye','ear','arm','hand','leg','knee','foot'];
+$('#bodyBoard').insertAdjacentHTML('beforeend',BCARD.map(([k,e],i)=>{const l=i<6,j=l?i:i-6;
+  return `<button class="bc" data-k="${k}" style="--lc:${(l?1:4)+j%2};--lr:${1+Math.floor(j/2)};--pc:${1+i%4};--pr:${2+Math.floor(i/4)}"><span class="em">${e}</span><small>${BP[k]}</small></button>`}).join(''));
+function bodyRing(k){const svg=$('#bodysvg');let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;
+  svg.querySelectorAll(`[data-part="${k}"]`).forEach(el=>{const b=el.getBBox();x1=Math.min(x1,b.x);y1=Math.min(y1,b.y);x2=Math.max(x2,b.x+b.width);y2=Math.max(y2,b.y+b.height)});
+  const w=x2-x1,h=y2-y1,cy=y1+h/2;
+  (PAIR.includes(k)?[[x1+w/4,w/4+8],[x1+w*3/4,w/4+8]]:[[x1+w/2,w/2+8]]).forEach(([cx,rx])=>{
+    const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    [['cx',cx],['cy',cy],['rx',rx],['ry',h/2+8],['class','ring']].forEach(([a,v])=>e.setAttribute(a,v));svg.appendChild(e);setTimeout(()=>e.remove(),1500)})}
+let bodyQ=null,bodyT=0;
+function bodyAsk(){const ks=Object.keys(BP);let k;do{k=ks[Math.floor(Math.random()*ks.length)]}while(k===bodyQ);bodyQ=k;
+  const t=`Touch my ${BP[k]}!`;$('#bSay').textContent='🎯 '+t;speak(t);clearTimeout(bodyT);bodyT=setTimeout(()=>{if(bodyQ)bodyRing(bodyQ)},6000)}
+function bodyTouch(k){const els=$$(`#bodysvg [data-part="${k}"]`);els.forEach(el=>hit(el,'flash'));const em=BCARD.find(c=>c[0]===k)[1];
+  const card=$(`.bc[data-k="${k}"]`);hit(card);
+  if(bodyQ===null){pop();$('#bSay').textContent=`${em} ${BP[k]}!`;speak(BP[k]);bodyRing(k);burst(els[0],['✨','⭐'])}
+  else if(k===bodyQ){clearTimeout(bodyT);cheer();bodyRing(k);burst(els[0]);speak('Yay! '+BP[k]);$('#bSay').textContent=`🎉 ${em} ${BP[k]}!`;setTimeout(bodyAsk,1800)}
+  else{oops();speak('Try again, touch my '+BP[bodyQ]);bodyRing(bodyQ)}}
+$('#bodysvg').addEventListener('click',e=>{const p=e.target.closest('[data-part]');if(p)bodyTouch(p.dataset.part)});
+$('#bodyBoard').addEventListener('click',e=>{const c=e.target.closest('.bc');if(c)bodyTouch(c.dataset.k)});
+$('#bodyQuiz').onclick=()=>{if(bodyQ===null){$('#bodyQuiz').textContent='👆 Just tap & learn';bodyAsk()}else{bodyQ=null;clearTimeout(bodyT);$('#bodyQuiz').textContent='🎯 Find it!';$('#bSay').textContent='👆 Tap a picture or my body!'}};
+
+/* ---------- TRANSPORT ---------- */
+function noise(d=.15,v=.2,f=800){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=Math.random()*2-1;
+  const src=AC.createBufferSource(),g=AC.createGain(),fl=AC.createBiquadFilter();src.buffer=b;fl.type='lowpass';fl.frequency.value=f;g.gain.value=v;src.connect(fl);fl.connect(g);g.connect(AC.destination);src.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d)}catch(e){}}
+const seq=a=>a.forEach(([t,f])=>setTimeout(f,t));
+const alt=(f1,f2,n,gap,dur=.25)=>seq(Array.from({length:n},(_,i)=>[i*gap,()=>tone(i%2?f2:f1,dur,'sine',.12)]));
+const TR=[
+ ['Car','🚗',()=>seq([[0,()=>tone(440,.14,'square',.08)],[230,()=>tone(440,.14,'square',.08)]])],
+ ['Bus','🚌',()=>{tone(196,.7,'sawtooth',.09);tone(247,.7,'sawtooth',.06)}],
+ ['Police car','🚓',()=>alt(760,980,6,280,.26)],
+ ['Ambulance','🚑',()=>alt(640,850,5,420,.4)],
+ ['Fire truck','🚒',()=>alt(520,720,8,200,.18)],
+ ['Truck','🚚',()=>{tone(130,.9,'sawtooth',.1);tone(98,.9,'sawtooth',.08)}],
+ ['Train','🚂',()=>seq([[0,()=>noise(.14,.3,900)],[260,()=>noise(.14,.3,900)],[520,()=>noise(.14,.3,900)],[780,()=>noise(.14,.3,900)],[1100,()=>tone(780,.2,'sine',.1)],[1400,()=>tone(780,.6,'sine',.1)]])],
+ ['Airplane','✈️',()=>noise(1.5,.22,600)],
+ ['Helicopter','🚁',()=>seq(Array.from({length:12},(_,i)=>[i*90,()=>noise(.07,.28,450)]))],
+ ['Ship','🚢',()=>{tone(130,1.2,'sine',.16);tone(98,1.2,'sine',.12)}],
+ ['Bicycle','🚲',()=>seq([[0,()=>tone(2300,.4,'sine',.08)],[220,()=>tone(2300,.4,'sine',.08)]])],
+ ['Tractor','🚜',()=>seq(Array.from({length:8},(_,i)=>[i*130,()=>tone(80,.09,'square',.12)]))]];
+$('#trGrid').innerHTML=TR.map(([n,e],i)=>`<button class="fruit" data-i="${i}"><span class="em">${e}</span><small>${n}</small></button>`).join('');
+let trq=null;
+function trAsk(){let i;do{i=Math.floor(Math.random()*TR.length)}while(i===trq);trq=i;const t=`Tap the ${TR[i][0]}!`;$('#trSay').textContent='🎯 '+t;speak(t)}
+$('#trGrid').addEventListener('click',e=>{const b=e.target.closest('.fruit');if(!b)return;const i=+b.dataset.i,[n,em,snd]=TR[i];
+  if(trq===null){hit(b);hit(b.querySelector('.em'),'drive');snd();burst(b,[em,'✨']);$('#trSay').textContent=`${em} ${n}!`;setTimeout(()=>speak(n),700)}
+  else if(i===trq){hit(b);hit(b.querySelector('.em'),'drive');snd();burst(b);setTimeout(()=>{cheer();speak('Yay! '+n)},900);setTimeout(trAsk,2600)}
+  else{hit(b,'no');oops();speak('Try again')}});
+$('#trQuiz').onclick=()=>{if(trq===null){$('#trQuiz').textContent='👆 Just tap & learn';trAsk()}else{trq=null;$('#trQuiz').textContent='🎯 Find the vehicle!';$('#trSay').textContent='👆 Tap a vehicle!'}};
+
+/* ---------- SHAPES ---------- */
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const SH={
+ circle:{name:'Circle',c:'#ffd21f',d:'#d9a900',ex:'⚽',txt:'A circle is round, like a ball!'},
+ square:{name:'Square',c:'#ff5a5f',d:'#c93a3f',ex:'🪟',txt:'A square has four equal sides, like a window!'},
+ rectangle:{name:'Rectangle',c:'#2f9bff',d:'#1f6fc0',ex:'🚪',txt:'A rectangle is long, like a door!'},
+ triangle:{name:'Triangle',c:'#3cc35a',d:'#2a9042',ex:'🍕',txt:'A triangle has three corners, like a pizza slice!'}};
+const SHP={circle:'<circle cx="50" cy="50" r="42"/>',square:'<rect x="9" y="9" width="82" height="82" rx="12"/>',rectangle:'<rect x="3" y="22" width="94" height="56" rx="12"/>',triangle:'<path d="M50 10L92 86H8Z"/>'};
+function shapeSVG(k,hole){
+ if(hole)return `<svg viewBox="0 0 100 100"><g fill="rgba(0,0,0,.18)" stroke="#fff" stroke-width="3" stroke-dasharray="7 5" stroke-linejoin="round">${SHP[k]}</g></svg>`;
+ const s=SH[k],ey=k==='triangle'?60:46,my=ey+13;
+ return `<svg viewBox="0 0 100 100"><g fill="${s.c}" stroke="${s.d}" stroke-width="4" stroke-linejoin="round">${SHP[k]}</g><g fill="#222"><circle cx="38" cy="${ey}" r="4.5"/><circle cx="62" cy="${ey}" r="4.5"/></g><circle cx="39.5" cy="${ey-1.5}" r="1.5" fill="#fff"/><circle cx="63.5" cy="${ey-1.5}" r="1.5" fill="#fff"/><path d="M41 ${my}Q50 ${my+9} 59 ${my}" fill="none" stroke="#222" stroke-width="3" stroke-linecap="round"/></svg>`}
+$('#shGrid').innerHTML=Object.keys(SH).map(k=>`<button class="shape" data-k="${k}"><span class="art">${shapeSVG(k)}</span><small>${SH[k].name}</small></button>`).join('');
+let shMode='learn',shQ=null,shDone=0;
+function shAsk(){const ks=Object.keys(SH);let k;do{k=pick(ks)}while(k===shQ);shQ=k;const t=`Tap the ${SH[k].name}!`;$('#shSay').textContent='🎯 '+t;speak(t)}
+function buildMatch(){const ks=Object.keys(SH);shDone=0;
+ $('#shMatch').innerHTML=shuffle(ks).map(k=>`<div class="mcell mt"><div class="tgt" data-k="${k}">${shapeSVG(k,true)}</div></div>`).join('')+shuffle(ks).map(k=>`<div class="mcell"><div class="piece" data-k="${k}">${shapeSVG(k)}</div></div>`).join('');
+ $('#shSay').textContent='🧩 Drag each shape to its home!'}
+function shSet(m){shMode=m;shQ=null;$$('#shTabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+ $('#shGrid').classList.toggle('hide',m==='match');$('#shMatch').classList.toggle('hide',m!=='match');
+ if(m==='learn')$('#shSay').textContent='👆 Tap a shape!';if(m==='find')shAsk();if(m==='match')buildMatch()}
+$('#shTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){pop();shSet(b.dataset.m)}});
+$('#shGrid').addEventListener('click',e=>{const b=e.target.closest('.shape');if(!b)return;const k=b.dataset.k,s=SH[k];
+  if(shMode==='learn'){hit(b);pop();burst(b,[s.ex,'✨']);$('#shSay').textContent=`${s.ex} ${s.txt}`;speak(s.name+'. '+s.txt)}
+  else if(k===shQ){hit(b);cheer();burst(b);speak('Yay! '+s.name);setTimeout(shAsk,1500)}
+  else{hit(b,'no');oops();speak('Try again')}});
+/* drag & drop matching */
+let drag=null;
+$('#shMatch').addEventListener('pointerdown',e=>{const pc=e.target.closest('.piece');if(!pc||pc.classList.contains('done'))return;e.preventDefault();
+  try{pc.setPointerCapture(e.pointerId)}catch(_){}
+  drag={pc,id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0,moved:false};pc.style.transition='none';pc.parentElement.classList.add('drag')});
+addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;drag.dx=e.clientX-drag.x;drag.dy=e.clientY-drag.y;
+  if(Math.hypot(drag.dx,drag.dy)>8)drag.moved=true;drag.pc.style.transform=`translate(${drag.dx}px,${drag.dy}px) scale(1.1)`});
+function endDrag(e){if(!drag||e.pointerId!==drag.id)return;const {pc,dx,dy,moved}=drag;drag=null;pc.parentElement.classList.remove('drag');pc.style.transition='transform .25s';
+  const k=pc.dataset.k;
+  if(!moved){pc.style.transform='';burst(pc,[SH[k].ex]);pop();speak(SH[k].name);return}
+  const r=pc.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const t=[...$$('#shMatch .tgt')].find(t=>t.dataset.k===k),tr=t.getBoundingClientRect(),tx=tr.left+tr.width/2,ty=tr.top+tr.height/2;
+  if(Math.hypot(cx-tx,cy-ty)<Math.min(tr.width,tr.height)*.6){
+    pc.style.transform=`translate(${dx+(tx-cx)}px,${dy+(ty-cy)}px)`;pc.classList.add('done');t.style.opacity=0;
+    pop();burst(pc);speak(SH[k].name+'!');shDone++;
+    if(shDone===4){$('#shSay').textContent='🎉 You did it! Great job!';setTimeout(()=>{cheer();speak('Great job!')},500);setTimeout(()=>{if(shMode==='match')buildMatch()},3500)}
+  }else{pc.style.transform='';oops();$('#shSay').textContent='Try again! Find its home 🏠'}}
+addEventListener('pointerup',endDrag);addEventListener('pointercancel',endDrag);
+
+/* ---------- BIG & SMALL ---------- */
+const SZ={bs:['big','small'],ts:['tall','short']};
+const BSE=['🍎','⚽','🐶','🐱','⭐','🚗','🎈','🍌','🐻','🌸','🦋','🐟'];
+const TC=['#ff5a5f','#ffb347','#ffd21f','#3cc35a','#2f9bff','#9b5de5','#ff8fc7'];
+const treeSVG=t=>{const H=t+110;return `<svg viewBox="0 0 100 ${H}" style="width:calc(100*var(--k));height:calc(${H}*var(--k))"><rect x="41" y="90" width="18" height="${t+20}" rx="6" fill="#9a6a3a"/><circle cx="26" cy="72" r="28" fill="#4cd16a"/><circle cx="74" cy="72" r="28" fill="#2fa84f"/><circle cx="50" cy="50" r="44" fill="#3cc35a"/></svg>`};
+const towerSVG=n=>{let r='';for(let j=0;j<n;j++)r+=`<rect x="0" y="${(n-1-j)*43+3}" width="64" height="40" rx="8" fill="${TC[j%7]}"/>`;return `<svg viewBox="0 0 64 ${n*43}" style="width:calc(64*var(--k));height:calc(${n*43}*var(--k))">${r}</svg>`};
+let szCat='bs',szQ=null;
+function szRound(){let it;
+ if(szCat==='bs'){const e=pick(BSE);it=[`<button class="it" data-w="big" style="font-size:var(--u)">${e}</button>`,`<button class="it" data-w="small" style="font-size:calc(var(--u)*.4)">${e}</button>`]}
+ else{const tree=Math.random()<.5;it=[['tall',tree?treeSVG(190):towerSVG(7)],['short',tree?treeSVG(20):towerSVG(3)]].map(([w,h])=>`<button class="it" data-w="${w}">${h}</button>`)}
+ $('#szStage').innerHTML=(Math.random()<.5?it:it.reverse()).join('')}
+function szAsk(){szQ=pick(SZ[szCat]);const t=`Tap the ${szQ} one!`;$('#szSay').textContent='🎯 '+t;speak(t)}
+$('#szStage').addEventListener('click',e=>{const b=e.target.closest('.it');if(!b)return;const w=b.dataset.w;
+  if(szQ===null){hit(b);pop();burst(b,['✨','⭐']);$('#szSay').textContent=`👆 This one is ${w.toUpperCase()}!`;speak(w+'!')}
+  else if(w===szQ){hit(b);cheer();burst(b);speak('Yes! '+w);$('#szSay').textContent='🎉 '+w.toUpperCase()+'!';setTimeout(()=>{szRound();szAsk()},1600)}
+  else{hit(b,'no');oops();speak('Try again')}});
+$('#szTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;pop();szCat=b.dataset.c;szQ=null;
+  $$('#szTabs button').forEach(x=>x.classList.toggle('on',x===b));$('#szQuiz').textContent='🎯 Find it!';$('#szSay').textContent='👆 Tap them!';szRound()});
+$('#szNext').onclick=()=>{pop();szRound();if(szQ!==null)szAsk()};
+$('#szQuiz').onclick=()=>{if(szQ===null){$('#szQuiz').textContent='👆 Just tap & learn';szAsk()}else{szQ=null;$('#szQuiz').textContent='🎯 Find it!';$('#szSay').textContent='👆 Tap them!'}};
+szRound();
+
+/* ---------- COUNT ANIMALS ---------- */
+const CA=[['lion','🦁'],['dog','🐶'],['cat','🐱'],['rabbit','🐰'],['duck','🦆'],['frog','🐸'],['chick','🐥'],['fish','🐟'],['bear','🐻'],['monkey','🐵']];
+const NC=['#ff3b30','#ff7a00','#f6c800','#3cc35a','#17b6a6','#2f9bff','#7a5af8','#ff5fa8','#8d5a2b','#4b5563'];
+const plural=n=>{const nm=CA[n-1][0];return n===1||nm==='fish'?nm:nm+'s'};
+let cn=1,cnCount=0,cnMode='learn',cnAns=0;
+$('#cnStrip').innerHTML=NC.map((c,i)=>`<button data-n="${i+1}" style="background:${c}">${i+1}</button>`).join('');
+function cnFill(n){cn=n;cnCount=0;const em=CA[n-1][1],cols=n<=3?n:n===4?2:n<=6?3:n<=8?4:5,rows=Math.ceil(n/cols),z=$('#cnZoo');
+  z.style.gridTemplateColumns=`repeat(${cols},minmax(0,1fr))`;z.style.gridTemplateRows=`repeat(${rows},minmax(0,1fr))`;
+  z.innerHTML=Array.from({length:n},()=>`<button class="an"><span>${em}</span><em></em></button>`).join('')}
+function cnShow(n,talk=true){cnFill(n);const nm=CA[n-1][0];$('#cnNum').textContent=n;$('#cnNum').classList.remove('done');
+  $$('#cnStrip button').forEach(b=>b.classList.toggle('on',+b.dataset.n===n));
+  $('#cnSay').textContent=n===1?`👆 Tap the ${nm}!`:`👆 Tap the ${plural(n)} to count!`;if(talk)speak(`${NUM[n]}. ${NUM[n]} ${plural(n)}`)}
+function cnQuiz(){const n=1+Math.floor(Math.random()*10);cnFill(n);$('#cnNum').textContent='?';$('#cnNum').classList.remove('done');cnAns=n;
+  const opts=new Set([n]);while(opts.size<3)opts.add(1+Math.floor(Math.random()*10));
+  $('#cnChoices').innerHTML=shuffle([...opts]).map(v=>`<button data-n="${v}" style="background:${NC[v-1]}">${v}</button>`).join('');
+  $('#cnSay').textContent='🎯 How many are there?';speak('How many are there?')}
+$('#cnZoo').addEventListener('click',e=>{const a=e.target.closest('.an');if(!a||a.classList.contains('on'))return;
+  a.classList.add('on');cnCount++;a.querySelector('em').textContent=cnCount;hit(a);tone(400+cnCount*55,.14);speak(NUM[cnCount]);
+  if(cnMode==='learn'&&cnCount===cn)setTimeout(()=>{$('#cnNum').classList.add('done');cheer();burst($('#cnNum'));$('#cnSay').textContent=`🎉 ${cn} ${plural(cn)}!`;speak(`${NUM[cn]} ${plural(cn)}!`)},800)});
+$('#cnStrip').addEventListener('click',e=>{const b=e.target.closest('button');if(b){pop();cnShow(+b.dataset.n)}});
+$('#cnChoices').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(+b.dataset.n===cnAns){cheer();burst(b);$('#cnNum').textContent=cnAns;$('#cnNum').classList.add('done');$$('#cnZoo .an').forEach((a,i)=>{a.classList.add('on');a.querySelector('em').textContent=i+1});
+    $('#cnSay').textContent=`🎉 ${cnAns} ${plural(cnAns)}!`;speak(`Yes! ${NUM[cnAns]} ${plural(cnAns)}`);setTimeout(()=>{if(cnMode==='quiz')cnQuiz()},2400)}
+  else{b.classList.remove('no');void b.offsetWidth;b.classList.add('no');oops();speak('Try again, count them!')}});
+function cnSet(m){cnMode=m;$$('#cnTabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  $('#cnStrip').classList.toggle('hide',m==='quiz');$('#cnChoices').classList.toggle('hide',m!=='quiz');m==='quiz'?cnQuiz():cnShow(cn,false)}
+$('#cnTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){pop();cnSet(b.dataset.m)}});
+$('#cnAgain').onclick=()=>{pop();cnMode==='quiz'?cnQuiz():cnShow(cn)};
+$('#cnNext').onclick=()=>{pop();cnMode==='quiz'?cnQuiz():cnShow(cn%10+1)};
+cnShow(1,false);
+
+/* ---------- COLORS ---------- */
+const CO=[["white","#ffffff"],["yellow","#ffc928"],["orange","#ff8a2b"],["red","#e03a1e"],["pink","#f060a5"],["purple","#8f10c8"],["green","#6cc51a"],["blue","#1c63d4"],["brown","#8a4413"],["gray","#9ea3a6"],["black","#111111"]];
+$('#cGrid').innerHTML=CO.map(([n,c])=>`<div class="cwrap" data-n="${n}"><button class="ball" style="background:${c};${n==='white'?'border:2px solid #ccc;':''}"><span class="face"></span><span class="mouth"></span><span class="cheek c1"></span><span class="cheek c2"></span></button><label>${n}</label></div>`).join('');
+$('#cGrid').addEventListener('click',e=>{const w=e.target.closest('.cwrap');if(!w)return;const b=w.querySelector('.ball');hit(b);pop();burst(b,['✨','🎈']);speak(w.dataset.n)});
+
+/* ---------- offline ---------- */
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),4500)}
+const STANDALONE=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+let offReady=false;
+function offChip(){const c=$('#offChip');
+  if(!('serviceWorker' in navigator)){c.className='chip warn';c.textContent='⚠️ Open in Safari to play offline';return}
+  if(offReady||navigator.serviceWorker.controller){c.className='chip ok';c.textContent=STANDALONE?'✅ Works offline':'✅ Saved for offline · tap to add to Home Screen'}
+  else{c.className='chip';c.textContent='⏳ Getting ready for offline…'}}
+$('#offChip').onclick=()=>{if(STANDALONE){toast(offReady||navigator.serviceWorker.controller?'✅ Already saved on this device':'⏳ Still saving… keep internet on a moment')}else $('#help').classList.remove('hide')};
+$('#helpClose').onclick=()=>$('#help').classList.add('hide');
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='offline-ready'){offReady=true;offChip();toast('✅ Saved! Works without internet now')}});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{offReady=true;offChip()});
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{offReady=true;offChip()}).catch(()=>offChip()));
+}
+offChip();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+/* ---------- child lock ---------- */
+const curScreen=()=>($('section.on')||{}).id;
+let wake=null,holdT=0,gateAns='',gateIn='';
+function fs(){try{const d=document.documentElement,r=d.requestFullscreen||d.webkitRequestFullscreen;
+  if(r&&!(document.fullscreenElement||document.webkitFullscreenElement)){const pr=r.call(d);if(pr&&pr.then)pr.then(()=>{try{navigator.keyboard&&navigator.keyboard.lock&&navigator.keyboard.lock(['Escape'])}catch(e){}}).catch(()=>{})}}catch(e){}}
+async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
+function applyLock(on){document.body.classList.toggle('locked',on);$$('.lockbtn').forEach(b=>b.textContent=on?'🔓':'🔒')}
+function lockApp(screen){lockedScreen=screen;try{localStorage.setItem('ll_lock',screen)}catch(e){}
+  go(screen);applyLock(true);try{history.pushState(null,'',location.href)}catch(e){}fs();keepAwake();toast('🔒 Locked! Grown-ups: hold 🔓 for 2 seconds to unlock')}
+function unlockApp(){lockedScreen=null;try{localStorage.removeItem('ll_lock')}catch(e){}applyLock(false);
+  try{(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}try{wake&&wake.release()}catch(e){}toast('🔓 Unlocked')}
+function openGate(){const a=6+Math.floor(Math.random()*4),b=5+Math.floor(Math.random()*5);gateAns=String(a+b);gateIn='';
+  $('#gateQ').textContent=`${a} + ${b} = ?`;$('#gateIn').textContent='';$('#gate').classList.remove('hide')}
+$('#keypad').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;
+  if(k==='del')gateIn=gateIn.slice(0,-1);
+  else if(k==='ok'){if(gateIn===gateAns){$('#gate').classList.add('hide');unlockApp()}else{const kp=$('#keypad');kp.classList.remove('no');void kp.offsetWidth;kp.classList.add('no');oops();openGate()}}
+  else if(gateIn.length<3)gateIn+=k;
+  $('#gateIn').textContent=gateIn});
+$('#gateCancel').onclick=()=>$('#gate').classList.add('hide');
+$('#lockTips').onclick=()=>$('#tips').classList.remove('hide');
+$('#tipsClose').onclick=()=>$('#tips').classList.add('hide');
+/* press-and-hold on the lock button */
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('.lockbtn');if(!b)return;const ms=lockedScreen?2000:1500;
+  b.style.setProperty('--hold',ms+'ms');b.classList.add('hold');clearTimeout(holdT);
+  holdT=setTimeout(()=>{holdT=0;b.classList.remove('hold');lockedScreen?openGate():lockApp(curScreen())},ms)});
+const holdEnd=()=>{if(holdT){clearTimeout(holdT);holdT=0;$$('.lockbtn').forEach(b=>b.classList.remove('hold'));toast(lockedScreen?'🔓 Grown-ups: hold for 2 seconds':'🔒 Hold for 1.5 seconds to lock')}};
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,holdEnd,true));
+/* things a child could do by accident */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault()));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('dblclick',e=>e.preventDefault());
+document.addEventListener('click',()=>{if(lockedScreen){fs();keepAwake()}});
+document.addEventListener('visibilitychange',()=>{if(lockedScreen&&!document.hidden)keepAwake()});
+addEventListener('popstate',()=>{if(lockedScreen){try{history.pushState(null,'',location.href)}catch(e){}}});
+addEventListener('beforeunload',e=>{if(lockedScreen){e.preventDefault();e.returnValue=''}});
+addEventListener('keydown',e=>{if(!lockedScreen)return;const k=e.key,K=k.toLowerCase();
+  if(k==='F5'||k==='F11'||k==='Escape'||k==='Backspace'||((e.ctrlKey||e.metaKey)&&['r','l','n','t','w','p','s','f','u','+','-','=','0'].includes(K))||(e.altKey&&(k==='ArrowLeft'||k==='ArrowRight')))e.preventDefault()});
+/* stay locked after a reload */
+try{const l=localStorage.getItem('ll_lock');if(l&&document.getElementById(l)){lockedScreen=l;go(l);applyLock(true);history.pushState(null,'',location.href)}}catch(e){}
+</script>
+</body>
+</html>
