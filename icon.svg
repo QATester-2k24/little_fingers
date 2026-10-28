@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="110" fill="#5ec8ff"/>
-  <circle cx="400" cy="110" r="46" fill="#ffe36b"/>
-  <path d="M0 360c80-50 160-50 256-10s170 30 256-20v182H0z" fill="#7ed36a"/>
-  <text x="256" y="330" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-weight="900" font-size="260" fill="#ff3b30" stroke="#b3170f" stroke-width="8">A</text>
-  <text x="256" y="450" text-anchor="middle" font-size="90">⭐🍎🌈</text>
-</svg>
